@@ -118,11 +118,28 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        new_list = args.split(" ")
+        if new_list[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+
+        dic = {}
+        for i in new_list[1:]:
+            tmp = i.split("=")
+            key = tmp[0]
+            value = tmp[1]
+            if value[0] == '"':
+                value = value.strip('"')
+                value = value.replace("_", " ")
+            else:
+                value = eval(value)
+            dic[key] = value
+        new_instance = HBNBCommand.classes[new_list[0]]()
+        if dic != {}:
+            for key, value in dic.items():
+                setattr(new_instance, key, value)
+
         print(new_instance.id)
         storage.save()
 
@@ -319,6 +336,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

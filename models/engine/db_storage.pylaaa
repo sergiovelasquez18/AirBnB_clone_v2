@@ -1,14 +1,14 @@
 #!/usr/bin/python3
-""" Engine Database """
+"""This module defines a class to manage database storage for hbnb clone"""
 from models.base_model import BaseModel
 from models.base_model import Base
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 from os import getenv
+from models.user import User
 from models.state import State
 from models.city import City
-from models.user import User
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
@@ -32,49 +32,45 @@ class DBStorage:
                                               HBNB_MYSQL_HOST,
                                               HBNB_MYSQL_DB),
                                       pool_pre_ping=True)
-        if HBNB_ENV == 'test':
+        if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """ query on the current database session (self.__session)
-        all objects depending of the class name (argument cls) """
-        if cls is not None:
+        """Query on the current database session"""
+        if cls is None:
+            objs_query = self.__session.query(State).all()
+            objs_query.extend(self.__session.query(City).all())
+            objs_query.extend(self.__session.query(User).all())
+            objs_query.extend(self.__session.query(Place).all())
+            objs_query.extend(self.__session.query(Review).all())
+            objs_query.extend(self.__session.query(Amenity).all())
+        else:
             if type(cls) == str:
                 cls = eval(cls)
-            new_query = self.__session.query(cls)
-        else:
-            new_query = self.__session.query(State).all()
-            new_query.extend(self.__session.query(City).all())
-            new_query.extend(self.__session.query(User).all())
-            new_query.extend(self.__session.query(Place).all())
-            new_query.extend(self.__session.query(Review).all())
-            new_query.extend(self.__session.query(Amenity).all())
-        obj_dic = {}
-        for ob in new_query:
-            keys = "{}.{}".format(type(ob).__name__, ob.id)
-            obj_dic[keys] = ob
-        return obj_dic
+            objs_query = self.__session.query(cls)
+        return {"{}.{}".format(type(objt).__name__, objt.id):
+                objt for objt in objs_query}
 
     def new(self, obj):
-        """ Add the object to the current database session """
+        """Add the object to the current database session"""
         self.__session.add(obj)
 
     def save(self):
-        """ Commit all changes of the current database session """
+        """Commit all changes of the current database session"""
         self.__session.commit()
 
     def delete(self, obj=None):
-        """ Delete from the current database session obj if not None """
+        """Delete from the current database session obj if not None"""
         if obj is not None:
             self.__session.delete(obj)
 
     def reload(self):
-        """ create all tables in the database (feature of SQLAlchemy) """
+        """reloads data from the database"""
         Base.metadata.create_all(self.__engine)
         Session = scoped_session(sessionmaker(bind=self.__engine,
                                               expire_on_commit=False))
         self.__session = Session()
 
     def close(self):
-        """ close session """
+        """call remove() method on the private session attribute """
         self.__session.close()

@@ -135,13 +135,14 @@ class HBNBCommand(cmd.Cmd):
             else:
                 value = eval(value)
             dic[key] = value
+
         new_instance = HBNBCommand.classes[new_list[0]]()
         if dic != {}:
             for key, value in dic.items():
                 setattr(new_instance, key, value)
 
         print(new_instance.id)
-        storage.save()
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """

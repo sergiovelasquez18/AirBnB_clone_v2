@@ -7,7 +7,7 @@ from models.city import City
 from os import getenv
 
 
-class State(BaseModel):
+class State(BaseModel, Base):
     """ State class """
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
@@ -21,7 +21,7 @@ class State(BaseModel):
             from models import storage
             new = []
             new_dic = storage.all(City)
-            for city in new_dic.values():
+            for city in new_dic.value():
                 if city.state_id == self.id:
                     new.append(city)
             return new

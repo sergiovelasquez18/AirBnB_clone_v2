@@ -1,9 +1,9 @@
-### 0x04. AirBnB clone - Web framework
+## 0x04. AirBnB clone - Web framework
 
-## Learning Objectives
+### Learning Objectives
 At the end of this project, you are expected to be able to explain to anyone, without the help of Google:
 
-## General
+### General
 * What is a Web Framework
 * How to build a web framework with Flask
 * How to define routes in Flask
